@@ -14,12 +14,12 @@ struct and_t {
     string out;
     string in1;
     string in2;
-} ;
+};
 
 struct not_t {
     string out;
     string in;
-} ;
+};
 
 
 
@@ -103,44 +103,35 @@ unordered_map<string, int> parseNodes(string file){
 vector<and_t> parseAndGates(string verilog) {
     vector<and_t> result;
     
-    regex r("and .*\((.*),(.*),(.*)\);");
+    regex r("and .*\\((.*),(.*),(.*)\\);");
     sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
     sregex_iterator file_end = sregex_iterator();
     
     for (sregex_iterator it = file_begin; it != file_end; it++) {
         smatch match = *it;
-        if (result.size() == 3) {
-            and_t gate;
-            gate.out = result[0];
-            gate.in1 = result[1];
-            gate.in2 = result[2];
-            result.insert(gate);
-        } else {
-            cerr << "Things went weird" << endl;
-        }
+        and_t gate;
+        gate.out = match[1].str();
+        gate.in1 = match[2].str();
+        gate.in2 = match[3].str();
+        result.push_back(gate);
     }
     
     return result;
 }
 
 vector<not_t> parseNotGates(string verilog) {
-    vector<and_t> result;
+    vector<not_t> result;
     
-    regex r("not .*\((.*),(.*)\);");
+    regex r("not .*\\((.*),(.*)\\);");
     sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
     sregex_iterator file_end = sregex_iterator();
     
     for (sregex_iterator it = file_begin; it != file_end; it++) {
         smatch match = *it;
-        if (result.size() == 3) {
-            and_t gate;
-            gate.out = result[0];
-            gate.in1 = result[1];
-            gate.in2 = result[2];
-            result.insert(gate);
-        } else {
-            cerr << "Things went weird" << endl;
-        }
+        not_t gate;
+        gate.out = match[0].str();
+        gate.in = match[1].str();
+        result.push_back(gate);
     }
     
     return result;
