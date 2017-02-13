@@ -157,8 +157,13 @@ vector<not_t> parseNotGates(string file) {
     return result;
 }
 
-int main() {
-	string file = readfile("ex1.v");
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        cout << "usage: ./a.out input.v num_unrollings" << endl;
+		return -1;
+	}
+	string file = readfile(argv[1]);
+    int num_unrollings = stoi(argv[2]);
 
 	ofstream outfile("output.dimacs");
 
