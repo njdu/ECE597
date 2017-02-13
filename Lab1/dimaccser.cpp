@@ -160,10 +160,16 @@ vector<not_t> parseNotGates(string file) {
 int main() {
 	string file = readfile("ex1.v");
 
+	ofstream outfile("output.dimacs");
+
 	map<string,int> mymap = parseNodes(file);
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
 	vector<Buffer> buffs = parseBuffers(file);
+
+
+
+
 
     cout << "Map:" << endl;
     for (map<string,int>::iterator ii=mymap.begin(); ii!=mymap.end(); ++ii) {
