@@ -10,7 +10,16 @@
 
 using namespace std;
 
+struct and_t {
+    string out;
+    string in1;
+    string in2;
+};
 
+struct not_t {
+    string out;
+    string in;
+};
 
 struct Buffer {
 
@@ -57,6 +66,15 @@ vector<string> tokenize(string str, const char * delim ){
 	}
 
 	return tokens;
+}
+
+void testTokenize() {
+	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
+	vector<string> tokens = tokenize(input, " ,\t\n;");
+	
+	for (int i = 0; i < tokens.size(); i++){
+		cout << tokens[i] << endl;
+	}
 }
 
 
@@ -118,17 +136,42 @@ vector<Buffer> parseBuffers(string file){
 
 }
 
-void testTokenize() {
-	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
-	vector<string> tokens = tokenize(input, " ,\t\n;");
-	
-	for (int i = 0; i < tokens.size(); i++){
-		cout << tokens[i] << endl;
-	}
+vector<and_t> parseAndGates(string verilog) {
+    vector<and_t> result;
+    
+    regex r("and .*\\((.*),(.*),(.*)\\);");
+    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_end = sregex_iterator();
+    
+    for (sregex_iterator it = file_begin; it != file_end; it++) {
+        smatch match = *it;
+        and_t gate;
+        gate.out = match[1].str();
+        gate.in1 = match[2].str();
+        gate.in2 = match[3].str();
+        result.push_back(gate);
+    }
+    
+    return result;
 }
 
-
-
+vector<not_t> parseNotGates(string verilog) {
+    vector<not_t> result;
+    
+    regex r("not .*\\((.*),(.*)\\);");
+    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_end = sregex_iterator();
+    
+    for (sregex_iterator it = file_begin; it != file_end; it++) {
+        smatch match = *it;
+        not_t gate;
+        gate.out = match[0].str();
+        gate.in = match[1].str();
+        result.push_back(gate);
+    }
+    
+    return result;
+}
 
 int main() {
 	/*
@@ -156,8 +199,4 @@ int main() {
 		cout << mymap[keys[i]] << endl;
 	}
 }
-
-
-
-
 
