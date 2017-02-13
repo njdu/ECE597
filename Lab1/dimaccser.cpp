@@ -49,36 +49,33 @@ vector<string> tokenize(string str, const char * delim ){
 }
 
 
-unordered_map<string, int> parseNodes(string verilog){
+unordered_map<string, int> parseNodes(string file){
 
-	int n = 0;	//number of nodes
+	int n = 1;	//number of nodes
 
 	unordered_map<string, int> nodes;
-	vector<string> tokens;
-	string s = verilog;
-	string node_list;	
+	vector<string> tokens = vector<string>();
+
+
 	regex r("(input|reg|wire|output)(.|\r|\n)*?[^;]*");	//regex to get line from the type declaration to semicolon
 
-	sregex_iterator file_begin = sregex_iterator(s.begin(), s.end(), r);
-	sregex_iterator file_end = sregex_iterator();		//the default constructor for regex_iterator is the end of sequency iterator, god knows why
+	sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
+	sregex_iterator file_end = sregex_iterator();		//the default constructor for regex_iterator is the end of sequence iterator, god knows why
 		
+
 	for (sregex_iterator it = file_begin; it != file_end; it++){
 
 		smatch match = *it;
-		s = match.str();
-		s = s.substr(s.find_first_of(" \t\n")+1);	//cut off the type declaration
-		cout << s << endl;
-		vector<string> new_tokens = tokenize(s,  " ,\t\n;");
-		tokens.insert(tokens.end(), new_tokens.begin(), new_tokens.end());
-	}
+		string result = match.str();
+		result = result.substr(result.find_first_of(" \t\n")+1);	//cut off the type declaration
+		cout << result << endl;
+		tokens = tokenize(result,  " ,\t\n");
 		
 		
+		for (vector<string>::iterator token = tokens.begin(); token != tokens.end(); token++){
+			nodes.insert(std::pair<string, int>(*token, n++));
+		}
 
-		
-		//
-
-	for (n = 0; n < tokens.size(); n++){
-		nodes.insert(std::pair<string, int>(tokens[n],n));
 	}
 	
 	return nodes;
@@ -119,11 +116,11 @@ int main() {
 
 	string keys[] = {"clock", "A", "Y", "S0", "S1", "X1", "NS0", "NS1"};
 
-	for (int i = 0; i < sizeof(keys); i++) {
+	for (int i = 0; i < 8; i++) {
 		cout << mymap[keys[i]] << endl;
 	}
 
-	cout << mymap["clock"] << endl;
+
 }
 
 
