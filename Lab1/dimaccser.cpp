@@ -98,7 +98,7 @@ map<string, int> parseNodes(string file) {
 
 vector<Buffer> parseBuffers(string file){
 
-	regex r ("(.*)<=(.*)[^;]*?");
+	regex r (".*<=.*[^;]*?");
 
 	vector<Buffer> buffs = vector<Buffer>();
 	sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
@@ -109,7 +109,7 @@ vector<Buffer> parseBuffers(string file){
 		smatch match = *it;
 		string output, input;
 
-		vector<string> tokens = tokenize(match.str(), " \t<=");
+		vector<string> tokens = tokenize(match.str(), " \t<=;");
 
 
 		buffs.push_back(Buffer(tokens[0], tokens[1]));
@@ -181,4 +181,11 @@ int main() {
     for (vector<not_t>::iterator ii=not_gates.begin(); ii!=not_gates.end(); ++ii) {
 		cout << ii->out << ", " << ii->in << endl;
 	}
+	cout << endl;
+
+	cout << "Buffers:" << endl;
+    for (vector<Buffer>::iterator ii=buffs.begin(); ii!=buffs.end(); ++ii) {
+		cout << ii->output << ", " << ii->input << endl;
+	}
+    cout << endl;
 }
