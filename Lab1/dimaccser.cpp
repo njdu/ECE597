@@ -12,6 +12,17 @@ using namespace std;
 
 
 
+struct Buffer {
+
+	Buffer(string out, string in){
+		output = out;
+		input = in;
+	}
+
+	string output;
+	string input;
+
+};
 
 
 string readfile(const char* filename) {
@@ -54,7 +65,7 @@ unordered_map<string, int> parseNodes(string file){
 	int n = 1;	//number of nodes
 
 	unordered_map<string, int> nodes;
-	vector<string> tokens = vector<string>();
+	vector<string> tokens;
 
 
 	regex r("(input|reg|wire|output)(.|\r|\n)*?[^;]*");	//regex to get line from the type declaration to semicolon
@@ -82,6 +93,30 @@ unordered_map<string, int> parseNodes(string file){
 
 }
 
+
+vector<Buffer> parseBuffers(string file){
+
+	regex r ("(.*)<=(.*)[^;]*?");
+
+	vector<Buffer> buffs = vector<Buffer>();
+	sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
+	sregex_iterator file_end = sregex_iterator();
+
+	for (sregex_iterator it = file_begin; it != file_end; it++)
+	{
+		smatch match = *it;
+		string output, input;
+
+		vector<string> tokens = tokenize(match.str(), " \t<=");
+
+
+		buffs.push_back(Buffer(tokens[0], tokens[1]));
+
+	}
+
+	return buffs;
+
+}
 
 void testTokenize() {
 	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
@@ -111,6 +146,7 @@ int main() {
 	*/
 
 	string file = readfile("ex1.v");
+	vector<Buffer> buffs = parseBuffers(file);
 
 	unordered_map<string,int> mymap = parseNodes(file);
 
@@ -119,8 +155,6 @@ int main() {
 	for (int i = 0; i < 8; i++) {
 		cout << mymap[keys[i]] << endl;
 	}
-
-
 }
 
 
