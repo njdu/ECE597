@@ -3,7 +3,7 @@
 #include <iostream>	//
 #include <sstream>	// std::stringstream
 #include <fstream>	// std::ifstream, std::ofstream
-#include <unordered_map>
+#include <map>
 #include <string.h>
 #include <vector>
 #include <utility>
@@ -34,7 +34,6 @@ string readfile(const char* filename) {
 }
 
 vector<string> tokenize(string str, const char * delim ){
-
 	vector<string> tokens;
 
 	size_t token_start = 0;
@@ -67,28 +66,23 @@ void testTokenize() {
 }
 
 
-unordered_map<string, int> parseNodes(string file){
-
+map<string, int> parseNodes(string file) {
 	int n = 1;	//number of nodes
 
-	unordered_map<string, int> nodes;
-	vector<string> tokens = vector<string>();
-
+	map<string, int> nodes;
+	vector<string> tokens;
 
 	regex r("(input|reg|wire|output)(.|\r|\n)*?[^;]*");	//regex to get line from the type declaration to semicolon
 
 	sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
 	sregex_iterator file_end = sregex_iterator();		//the default constructor for regex_iterator is the end of sequence iterator, god knows why
-		
 
 	for (sregex_iterator it = file_begin; it != file_end; it++){
-
 		smatch match = *it;
 		string result = match.str();
 		result = result.substr(result.find_first_of(" \t\n")+1);	//cut off the type declaration
 		cout << result << endl;
 		tokens = tokenize(result,  " ,\t\n");
-		
 		
 		for (vector<string>::iterator token = tokens.begin(); token != tokens.end(); token++){
 			nodes.insert(std::pair<string, int>(*token, n++));
@@ -100,11 +94,11 @@ unordered_map<string, int> parseNodes(string file){
 
 }
 
-vector<and_t> parseAndGates(string verilog) {
+vector<and_t> parseAndGates(string file) {
     vector<and_t> result;
     
     regex r("and .*\\((.*),(.*),(.*)\\);");
-    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
     sregex_iterator file_end = sregex_iterator();
     
     for (sregex_iterator it = file_begin; it != file_end; it++) {
@@ -119,18 +113,18 @@ vector<and_t> parseAndGates(string verilog) {
     return result;
 }
 
-vector<not_t> parseNotGates(string verilog) {
+vector<not_t> parseNotGates(string file) {
     vector<not_t> result;
     
     regex r("not .*\\((.*),(.*)\\);");
-    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
     sregex_iterator file_end = sregex_iterator();
     
     for (sregex_iterator it = file_begin; it != file_end; it++) {
         smatch match = *it;
         not_t gate;
-        gate.out = match[0].str();
-        gate.in = match[1].str();
+        gate.out = match[1].str();
+        gate.in = match[2].str();
         result.push_back(gate);
     }
     
@@ -154,14 +148,24 @@ int main() {
 
 	string file = readfile("ex1.v");
 
-	unordered_map<string,int> mymap = parseNodes(file);
+	map<string,int> mymap = parseNodes(file);
+    vector<and_t> and_gates = parseAndGates(file);
+    vector<not_t> not_gates = parseNotGates(file);
 
-	string keys[] = {"clock", "A", "Y", "S0", "S1", "X1", "NS0", "NS1"};
-
-	for (int i = 0; i < 8; i++) {
-		cout << mymap[keys[i]] << endl;
+    cout << "Map:" << endl;
+    for (map<string,int>::iterator ii=mymap.begin(); ii!=mymap.end(); ++ii) {
+		cout << ii->first << ":" << ii->second << endl;
 	}
-
-
+    cout << endl;
+    
+    cout << "And gates:" << endl;
+    for (vector<and_t>::iterator ii=and_gates.begin(); ii!=and_gates.end(); ++ii) {
+		cout << ii->out << ", " << ii->in1 << ", " << ii->in2 << endl;
+	}
+    cout << endl;
+    
+    cout << "Not gates:" << endl;
+    for (vector<not_t>::iterator ii=not_gates.begin(); ii!=not_gates.end(); ++ii) {
+		cout << ii->out << ", " << ii->in << endl;
+	}
 }
-
