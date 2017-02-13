@@ -21,6 +21,17 @@ struct not_t {
     string in;
 };
 
+struct Buffer {
+
+	Buffer(string out, string in){
+		output = out;
+		input = in;
+	}
+
+	string output;
+	string input;
+
+};
 
 
 string readfile(const char* filename) {
@@ -56,16 +67,6 @@ vector<string> tokenize(string str, const char * delim ){
 	return tokens;
 }
 
-void testTokenize() {
-	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
-	vector<string> tokens = tokenize(input, " ,\t\n;");
-	
-	for (int i = 0; i < tokens.size(); i++){
-		cout << tokens[i] << endl;
-	}
-}
-
-
 map<string, int> parseNodes(string file) {
 	int n = 1;	//number of nodes
 
@@ -91,6 +92,31 @@ map<string, int> parseNodes(string file) {
 	}
 	
 	return nodes;
+
+}
+
+
+vector<Buffer> parseBuffers(string file){
+
+	regex r ("(.*)<=(.*)[^;]*?");
+
+	vector<Buffer> buffs = vector<Buffer>();
+	sregex_iterator file_begin = sregex_iterator(file.begin(), file.end(), r);
+	sregex_iterator file_end = sregex_iterator();
+
+	for (sregex_iterator it = file_begin; it != file_end; it++)
+	{
+		smatch match = *it;
+		string output, input;
+
+		vector<string> tokens = tokenize(match.str(), " \t<=");
+
+
+		buffs.push_back(Buffer(tokens[0], tokens[1]));
+
+	}
+
+	return buffs;
 
 }
 
@@ -132,25 +158,12 @@ vector<not_t> parseNotGates(string file) {
 }
 
 int main() {
-	/*
-	string filename = std::string("ex1.v");
-	ifstream infile(filename, std::ios_base::in);
-	infile.seekg(64, infile.beg);
-
-	stringstream ss;
-	ss << infile.rdbuf();
-
-	string test = ss.str();
-
-	cout << test;
-
-	*/
-
 	string file = readfile("ex1.v");
 
 	map<string,int> mymap = parseNodes(file);
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
+	vector<Buffer> buffs = parseBuffers(file);
 
     cout << "Map:" << endl;
     for (map<string,int>::iterator ii=mymap.begin(); ii!=mymap.end(); ++ii) {
