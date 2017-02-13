@@ -10,7 +10,16 @@
 
 using namespace std;
 
+struct and_t {
+    string out;
+    string in1;
+    string in2;
+} ;
 
+struct not_t {
+    string out;
+    string in;
+} ;
 
 
 
@@ -48,6 +57,15 @@ vector<string> tokenize(string str, const char * delim ){
 	return tokens;
 }
 
+void testTokenize() {
+	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
+	vector<string> tokens = tokenize(input, " ,\t\n;");
+	
+	for (int i = 0; i < tokens.size(); i++){
+		cout << tokens[i] << endl;
+	}
+}
+
 
 unordered_map<string, int> parseNodes(string verilog){
 
@@ -56,7 +74,6 @@ unordered_map<string, int> parseNodes(string verilog){
 	unordered_map<string, int> nodes;
 	vector<string> tokens;
 	string s = verilog;
-	string node_list;	
 	regex r("(input|reg|wire|output)(.|\r|\n)*?[^;]*");	//regex to get line from the type declaration to semicolon
 
 	sregex_iterator file_begin = sregex_iterator(s.begin(), s.end(), r);
@@ -68,7 +85,7 @@ unordered_map<string, int> parseNodes(string verilog){
 		s = match.str();
 		s = s.substr(s.find_first_of(" \t\n")+1);	//cut off the type declaration
 		cout << s << endl;
-		vector<string> new_tokens = tokenize(s,  " ,\t\n;");
+		vector<string> new_tokens = tokenize(s,  " ,\t\n");
 		tokens.insert(tokens.end(), new_tokens.begin(), new_tokens.end());
 	}
 		
@@ -78,25 +95,58 @@ unordered_map<string, int> parseNodes(string verilog){
 		//
 
 	for (n = 0; n < tokens.size(); n++){
-		nodes.insert(std::pair<string, int>(tokens[n],n));
+		nodes.insert(std::pair<string, int>(tokens[n],n + 1));
 	}
 	
 	return nodes;
 
 }
 
-
-void testTokenize() {
-	string input = string("input Rdy1RtHS1,Rdy2RtHS1,Rdy1BmHS1,Rdy2BmHS1,\n\n\tInDoneHS1,RtTSHS1,TpArrayHS1,OutputHS1,WantBmHS1,WantRtHS1,OutAvHS1,FullOHS1,FullIHS1,Prog_2,Prog_1,Prog_0;");
-	vector<string> tokens = tokenize(input, " ,\t\n;");
-	
-	for (int i = 0; i < tokens.size(); i++){
-		cout << tokens[i] << endl;
-	}
+vector<and_t> parseAndGates(string verilog) {
+    vector<and_t> result;
+    
+    regex r("and .*\((.*),(.*),(.*)\);");
+    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_end = sregex_iterator();
+    
+    for (sregex_iterator it = file_begin; it != file_end; it++) {
+        smatch match = *it;
+        if (result.size() == 3) {
+            and_t gate;
+            gate.out = result[0];
+            gate.in1 = result[1];
+            gate.in2 = result[2];
+            result.insert(gate);
+        } else {
+            cerr << "Things went weird" << endl;
+        }
+    }
+    
+    return result;
 }
 
-
-
+vector<not_t> parseNotGates(string verilog) {
+    vector<and_t> result;
+    
+    regex r("not .*\((.*),(.*)\);");
+    sregex_iterator file_begin = sregex_iterator(verilog.begin(), verilog.end(), r);
+    sregex_iterator file_end = sregex_iterator();
+    
+    for (sregex_iterator it = file_begin; it != file_end; it++) {
+        smatch match = *it;
+        if (result.size() == 3) {
+            and_t gate;
+            gate.out = result[0];
+            gate.in1 = result[1];
+            gate.in2 = result[2];
+            result.insert(gate);
+        } else {
+            cerr << "Things went weird" << endl;
+        }
+    }
+    
+    return result;
+}
 
 int main() {
 	/*
@@ -125,8 +175,4 @@ int main() {
 
 	cout << mymap["clock"] << endl;
 }
-
-
-
-
 
