@@ -98,7 +98,6 @@ map<string, int> parseNodes(string file, int &n) {
 		smatch match = *it;
 		string result = match.str();
 		result = result.substr(result.find_first_of(" \t\n")+1);	//cut off the type declaration
-		cout << result << endl;
 		tokens = tokenize(result,  " ,\t\n");
 		
 		for (vector<string>::iterator token = tokens.begin(); token != tokens.end(); token++){
@@ -190,16 +189,20 @@ int main(int argc, char* argv[]) {
         cout << "usage: ./a.out input.v output.dimacs num_unrollings" << endl;
 		return -1;
 	}
+	
 	string file = readfile(argv[1]);
-    int num_unrollings = stoi(argv[2]);
-    string outfile_name = readfile(argv[3]);
+    string outfile_name = argv[2];
 
-	ofstream outfile("output.dimacs");
+    cout << outfile_name << endl;
+    int num_unrollings = stoi(argv[3]);
+
+	ofstream outfile(outfile_name, fstream::out);
 
 	int num_variables = 0;
 
 	map<string,int> nodes = parseNodes(file, num_variables);
 	map<string, int> next_nodes;
+
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
 	vector<buffer_t> buffs = parseBuffers(file);
@@ -207,7 +210,7 @@ int main(int argc, char* argv[]) {
 
 
 
-
+	/*
     cout << "Map:" << endl;
     for (map<string,int>::iterator ii=nodes.begin(); ii!=nodes.end(); ++ii) {
 		cout << ii->first << ":" << ii->second << endl;
@@ -231,40 +234,44 @@ int main(int argc, char* argv[]) {
 		cout << ii->out << ", " << ii->in << endl;
 	}
     cout << endl;
+    */
 
-
-    string output;
 
     for (int ii = 0; ii < num_unrollings; ii++)
     {
 
     	//Add all and gates
     	int jj;
-    	for (int jj = 0; jj < and_gates.size(); jj++)
+    	for (jj = 0; jj < and_gates.size(); jj++)
     	{
-    		output += andToCNF(and_gates[jj], nodes);
+    		outfile << andToCNF(and_gates[jj], nodes);
     	}
+    	cout << "Made it here" << endl;
 
     	//Add all not gates
-    	for (int jj = 0; jj < not_gates.size(); jj++)
+    	for (jj = 0; jj < not_gates.size(); jj++)
     	{
-    		output += notToCNF(not_gates[jj], nodes);
+    		outfile << notToCNF(not_gates[jj], nodes);
     	}
 
-    	next_nodes = nodes;
-    	map<string, int>::iterator itr = next_nodes.begin();
-    	while (itr != next_nodes.end){
-    		itr->second += num_variables;
-    	}
+    	cout << "NOTS" << endl;
 
-    	for (int jj = 0; jj < buffs.size(); jj++){
-    		output += buffToCNF(vector<buff_t> buffs, map<string, int> nodes, map<string, int> next_nodes);	
+    	next_nodes = map<string, int>(nodes);
+		for (map<string,int>::iterator itr=next_nodes.begin(); itr!=next_nodes.end(); ++itr) {
+			itr->second += num_variables;
+		}
+
+    	cout << "COPIED" << endl;
+
+    	for (jj = 0; jj < buffs.size(); jj++){
+    		outfile << buffToCNF(buffs[jj], nodes, next_nodes);	
     	}
     	
+    	cout << "buffer" << endl;
+
     	nodes = next_nodes;
     }
 
-    outfile << output;
     outfile.close();
 
 
