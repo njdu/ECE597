@@ -192,43 +192,19 @@ int main(int argc, char* argv[]) {
 
 	string file = readfile(argv[1]);
     string outfile_name = argv[2];
-
-    cout << outfile_name << endl;
     int num_unrollings = stoi(argv[3]);
     int end_state = stoi(argv[4]);
 
 	ofstream outfile(outfile_name, fstream::out);
 
+	//num_variables will be updated with the number of variables needed o
+	//represent file in CNF expression
 	int num_variables = 0;
 	map<string,int> nodes = parseNodes(file, num_variables);
 
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
 	vector<buffer_t> buffs = parseBuffers(file);
-
-    cout << "Map:" << endl;
-    for (map<string,int>::iterator ii=nodes.begin(); ii!=nodes.end(); ++ii) {
-		cout << ii->first << ":" << ii->second << endl;
-	}
-    cout << endl;
-    
-    cout << "And gates:" << endl;
-    for (vector<and_t>::iterator ii=and_gates.begin(); ii!=and_gates.end(); ++ii) {
-		cout << ii->out << ", " << ii->in1 << ", " << ii->in2 << endl;
-	}
-    cout << endl;
-    
-    cout << "Not gates:" << endl;
-    for (vector<not_t>::iterator ii=not_gates.begin(); ii!=not_gates.end(); ++ii) {
-		cout << ii->out << ", " << ii->in << endl;
-	}
-	cout << endl;
-
-	cout << "Buffers:" << endl;
-    for (vector<buffer_t>::iterator ii=buffs.begin(); ii!=buffs.end(); ++ii) {
-		cout << ii->out << ", " << ii->in << endl;
-	}
-    cout << endl;
 
 	int num_clauses = (and_gates.size()*3 + not_gates.size()*2)*(num_unrollings) + buffs.size() * 2 *(num_unrollings - 1) + buffs.size() * 2;
 	outfile << "p cnf " << num_variables*num_unrollings << " " << num_clauses << endl;
