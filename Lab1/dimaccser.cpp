@@ -84,7 +84,7 @@ vector<string> tokenize(string str, const char * delim ){
  */ 
 map<string, int> parseNodes(string file, int &n) {
 
-	n = 1;
+	n = 0;
 
 	map<string, int> nodes;
 	vector<string> tokens;
@@ -101,7 +101,7 @@ map<string, int> parseNodes(string file, int &n) {
 		tokens = tokenize(result,  " ,\t\n");
 		
 		for (vector<string>::iterator token = tokens.begin(); token != tokens.end(); token++){
-			nodes.insert(std::pair<string, int>(*token, n++));
+			nodes.insert(std::pair<string, int>(*token, ++n));
 		}
 
 	}
@@ -185,23 +185,22 @@ string buffToCNF(buffer_t buff, map<string,int> prevNodes, map<string,int> nextN
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 4) {
-        cout << "usage: ./a.out input.v output.dimacs num_unrollings" << endl;
+    if (argc != 5) {
+        cout << "usage: ./a.out input.v output.dimacs num_unrollings end_state" << endl;
 		return -1;
 	}
-	
+
 	string file = readfile(argv[1]);
     string outfile_name = argv[2];
 
     cout << outfile_name << endl;
     int num_unrollings = stoi(argv[3]);
+    int end_state = stoi(argv[4]);
 
 	ofstream outfile(outfile_name, fstream::out);
 
 	int num_variables = 0;
-
 	map<string,int> nodes = parseNodes(file, num_variables);
-	map<string, int> next_nodes;
 
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
@@ -236,46 +235,67 @@ int main(int argc, char* argv[]) {
     cout << endl;
     */
 
+	int num_clauses = (and_gates.size()*3 + not_gates.size()*2)*(num_unrollings) + buffs.size() * 2 *(num_unrollings - 1) + buffs.size() * 2;
+	outfile << "p cnf " << num_variables*num_unrollings << " " << num_clauses << endl;
+
+
+	outfile << "c Initial Conditions" << endl;
+	for (vector<buffer_t>::iterator itr = buffs.begin(); itr != buffs.end(); itr++)
+	{
+		outfile << "-" << nodes.find(itr->out)->second << " 0" << endl;
+	}
 
     for (int ii = 0; ii < num_unrollings; ii++)
     {
 
-    	//Add all and gates
+    	outfile << "c " << "Unrolling " << ii + 1 << endl;
+    	outfile << "c " << "And Gates" << endl; 
     	int jj;
     	for (jj = 0; jj < and_gates.size(); jj++)
     	{
     		outfile << andToCNF(and_gates[jj], nodes);
     	}
-    	cout << "Made it here" << endl;
 
+    	outfile << "c Not Gates" << endl;
     	//Add all not gates
     	for (jj = 0; jj < not_gates.size(); jj++)
     	{
     		outfile << notToCNF(not_gates[jj], nodes);
     	}
 
-    	cout << "NOTS" << endl;
 
-    	next_nodes = map<string, int>(nodes);
-		for (map<string,int>::iterator itr=next_nodes.begin(); itr!=next_nodes.end(); ++itr) {
-			itr->second += num_variables;
-		}
 
-    	cout << "COPIED" << endl;
+    	if ( ii < num_unrollings - 1){
+	    	map<string, int> next_nodes = map<string, int>(nodes);
+			for (map<string,int>::iterator itr=next_nodes.begin(); itr!=next_nodes.end(); ++itr) {
+				itr->second += num_variables;
+			}
 
-    	for (jj = 0; jj < buffs.size(); jj++){
-    		outfile << buffToCNF(buffs[jj], nodes, next_nodes);	
+			outfile << "c Buffers" << endl;
+	    	for (jj = 0; jj < buffs.size(); jj++){
+	    		outfile << buffToCNF(buffs[jj], nodes, next_nodes);	
+	    	}
+
+    		nodes = next_nodes;
     	}
-    	
-    	cout << "buffer" << endl;
-
-    	nodes = next_nodes;
     }
 
+    outfile << "c Final state" << endl;
+
+    for (int ii = 0; ii <  buffs.size(); ii++)
+    {
+
+    }
+
+	for (vector<buffer_t>::iterator itr = buffs.begin(); itr != buffs.end(); itr++)
+	{
+		if (!(end_state & 0x01)){
+			outfile << "-";
+		}
+		end_state = end_state >> 1;
+		outfile << nodes.find(itr->out)->second << " 0" << endl;
+	}
+
     outfile.close();
-
-
-
-
 
 }
