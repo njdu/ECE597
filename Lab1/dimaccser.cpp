@@ -10,6 +10,9 @@
 
 using namespace std;
 
+
+
+
 struct and_t {
     string out;
     string in1;
@@ -67,8 +70,15 @@ vector<string> tokenize(string str, const char * delim ){
 	return tokens;
 }
 
-map<string, int> parseNodes(string file) {
-	int n = 1;	//number of nodes
+/* Returns a map, whose keys are the string names of a particular node, and the values are the dimaccs variable number
+ *
+ * \param file - a std::string containing the entire contents of the verilog file
+ * \param &n - A reference to an integer that tracks the number of variables in
+ *
+ */ 
+map<string, int> parseNodes(string file, int &n) {
+
+	n = 1;
 
 	map<string, int> nodes;
 	vector<string> tokens;
@@ -157,17 +167,29 @@ vector<not_t> parseNotGates(string file) {
     return result;
 }
 
+
+string andToCNF(and_t gate, map<string, int> nodes){
+
+	return string a;
+}
+
+
+
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        cout << "usage: ./a.out input.v num_unrollings" << endl;
+    if (argc != 4) {
+        cout << "usage: ./a.out input.v output.dimacs num_unrollings" << endl;
 		return -1;
 	}
 	string file = readfile(argv[1]);
     int num_unrollings = stoi(argv[2]);
+    string outfile_name = readfile(argv[3]);
 
 	ofstream outfile("output.dimacs");
 
-	map<string,int> mymap = parseNodes(file);
+	int num_variables = 0;
+
+	map<string,int> nodes = parseNodes(file, num_variables);
+	map<string, int> next_nodes;
     vector<and_t> and_gates = parseAndGates(file);
     vector<not_t> not_gates = parseNotGates(file);
 	vector<Buffer> buffs = parseBuffers(file);
@@ -177,7 +199,7 @@ int main(int argc, char* argv[]) {
 
 
     cout << "Map:" << endl;
-    for (map<string,int>::iterator ii=mymap.begin(); ii!=mymap.end(); ++ii) {
+    for (map<string,int>::iterator ii=nodes.begin(); ii!=nodes.end(); ++ii) {
 		cout << ii->first << ":" << ii->second << endl;
 	}
     cout << endl;
@@ -199,4 +221,44 @@ int main(int argc, char* argv[]) {
 		cout << ii->output << ", " << ii->input << endl;
 	}
     cout << endl;
+
+
+    string output;
+
+    for (int ii = 0; ii < num_unrollings; ii++)
+    {
+
+    	//Add all and gates
+    	int jj;
+    	for (int jj = 0; jj < and_gates.size(); jj++)
+    	{
+    		output += andToCNF(and_gates[jj], nodes);
+    	}
+
+    	//Add all not gates
+    	for (int jj = 0; jj < not_gates.size(); jj++)
+    	{
+    		output += notToCNF(not_gates[jj], nodes);
+    	}
+
+    	next_nodes = nodes;
+    	map<string, int>::iterator itr = next_nodes.begin();
+    	while (itr != next_nodes.end){
+    		itr->second += num_variables;
+    	}
+
+    	for (int jj = 0; jj < buffs.size(); jj++){
+    		output += buffToCNF(vector<buff_t> buffs, map<string, int> nodes, map<string, int> next_nodes);	
+    	}
+    	
+    	nodes = next_nodes;
+    }
+
+    outfile << output;
+    outfile.close();
+
+
+
+
+
 }
