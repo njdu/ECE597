@@ -97,8 +97,8 @@ map<string, int> parseNodes(string file, int &n) {
 	for (sregex_iterator it = file_begin; it != file_end; it++){
 		smatch match = *it;
 		string result = match.str();
-		result = result.substr(result.find_first_of(" \t\n")+1);	//cut off the type declaration
-		tokens = tokenize(result,  " ,\t\n");
+		result = result.substr(result.find_first_of(" \t\r\n")+1);	//cut off the type declaration
+		tokens = tokenize(result,  " ,\t\r\n");
 		
 		for (vector<string>::iterator token = tokens.begin(); token != tokens.end(); token++){
 			nodes.insert(std::pair<string, int>(*token, ++n));
@@ -206,10 +206,6 @@ int main(int argc, char* argv[]) {
     vector<not_t> not_gates = parseNotGates(file);
 	vector<buffer_t> buffs = parseBuffers(file);
 
-
-
-
-	/*
     cout << "Map:" << endl;
     for (map<string,int>::iterator ii=nodes.begin(); ii!=nodes.end(); ++ii) {
 		cout << ii->first << ":" << ii->second << endl;
@@ -233,7 +229,6 @@ int main(int argc, char* argv[]) {
 		cout << ii->out << ", " << ii->in << endl;
 	}
     cout << endl;
-    */
 
 	int num_clauses = (and_gates.size()*3 + not_gates.size()*2)*(num_unrollings) + buffs.size() * 2 *(num_unrollings - 1) + buffs.size() * 2;
 	outfile << "p cnf " << num_variables*num_unrollings << " " << num_clauses << endl;
