@@ -236,6 +236,7 @@ int main(int argc, char* argv[]) {
 
 
 
+    	//For all but the last unrolling, assign new numbers to all nodes 
     	if ( ii < num_unrollings - 1){
 	    	map<string, int> next_nodes = map<string, int>(nodes);
 			for (map<string,int>::iterator itr=next_nodes.begin(); itr!=next_nodes.end(); ++itr) {
@@ -253,18 +254,17 @@ int main(int argc, char* argv[]) {
 
     outfile << "c Final state" << endl;
 
-    for (int ii = 0; ii <  buffs.size(); ii++)
-    {
-
-    }
-
+    //The final state will be at input to the buffer
 	for (vector<buffer_t>::iterator itr = buffs.begin(); itr != buffs.end(); itr++)
 	{
+
 		if (!(end_state & 0x01)){
 			outfile << "-";
 		}
 		end_state = end_state >> 1;
-		outfile << nodes.find(itr->out)->second << " 0" << endl;
+
+		// For the final unrolling, we want the values of the next state. Therefore, we want the input to the buffer struct
+		outfile << nodes.find(itr->in)->second << " 0" << endl;
 	}
 
     outfile.close();
