@@ -2,7 +2,7 @@ module stoplight(Ped,clock,SigG,SigY,SigR);
 	input Ped,clock;
 	output SigG,SigY,SigR;
 	reg S3,S2,S1,S0;
-	wire n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25,n26,n27,n28,n29,n30,n31,n32,n33,n34,n35,n36,n38,n39,n40,n42,n41,n43,n44,n45,n47,n48,n49,n50,n52,n53,n54,n55,n56,n57,n58,n59,n60,n61,n62,n64,n65,n66,n67;
+	wire n13,n14,n15,n16,n17,n18,n19,n20,n21,n22,n23,n24,n25,n26,n27,n28,n29,n30,n31,n32,n33,n34,n35,n36,n38,n39,n40,n42,n41,n43,n44,n45,n47,n48,n49,n50,n52,n53,n54,n55,n56,n57,n58,n59,n60,n61,n62,n64,n65,n66,n67,NS0,NS1,NS2,NS3;
 	not g0(n13,S3);
 	and g1(n14,S2,n13);
 	and g2(n15,Ped,S0);
