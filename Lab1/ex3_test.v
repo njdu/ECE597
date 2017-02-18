@@ -50,8 +50,8 @@ module test;
 
 		count = 32'd0;
 
-		#100 $display("Timed Out\n");
-		#101 $finish;
+		#1000000 $display("Timed Out\n");
+		#1000001 $finish;
 
 		
 	end
@@ -73,8 +73,8 @@ module test;
    			$finish;
    		end
    		else begin
-   			$display("%10d",count,"  state:",ex.S14, ex.S13, ex.S12, ex.S11, ex.S10,
-   			 ex.S9, ex.S8,ex.S7,ex.S6,ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0);
+   		//	$display("%10d",count,"  state:",ex.S14, ex.S13, ex.S12, ex.S11, ex.S10,
+   		//	 ex.S9, ex.S8,ex.S7,ex.S6,ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0);
    		end
 
    		Rdy1RtHS1 <= $random;

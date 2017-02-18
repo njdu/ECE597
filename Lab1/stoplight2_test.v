@@ -4,7 +4,7 @@ module test;
 	reg[32:0] count;
 	wire SigG,SigY,SigR;
 
-	stoplight2 light(CLK, Ped, SigG,SigY,SigR);
+	stoplight2 light(Ped, CLK, SigG,SigY,SigR);
 
 	initial begin
 

@@ -6,7 +6,8 @@ module test;
 
 
 
-	ex2 ex(CLK,START,B0,B1,B2,B3,A0,A1,A2,A3,CNTVCO2,CNTVCON2,READY,P0,P1,P2,P3,P4,P5,P6,P7);
+	ex2 ex(CLK,START,B0,B1,B2,B3,A0,A1,
+		A2,A3,CNTVCO2,CNTVCON2,READY,P0,P1,P2,P3,P4,P5,P6,P7);
 
 	initial begin
 		CLK = 0;
@@ -42,13 +43,16 @@ module test;
 
    		count <= count + 1;
 
-   		$display("Working");
-   		if ({ex.S14, ex.S13, ex.S12, ex.S11, ex.S10, ex.S9, ex.S8,ex.S7,ex.S6,ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0} == 14'hFFF) begin
-   			$display("%10d",count,"  state:",ex.S14, ex.S13, ex.S12, ex.S11, ex.S10, ex.S9, ex.S8,ex.S7,ex.S6,ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0, "  (reached target)");
+   		//$display("Working");
+   		if ({ex.S14, ex.S13, ex.S12, ex.S11, ex.S10, ex.S9, ex.S8,ex.S7,ex.S6,
+   			ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0} == 14'hFFF) begin
+   			$display("%10d",count,"  state:",ex.S14, ex.S13,
+   			 ex.S12, ex.S11, ex.S10, ex.S9, ex.S8,ex.S7,ex.S6,
+   			 ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0, "  (reached target)");
    			$finish;
    		end
    		else begin
-   			$display("%10d",count,"  state:",ex.S14, ex.S13, ex.S12, ex.S11, ex.S10, ex.S9, ex.S8,ex.S7,ex.S6,ex.S5,ex.S4,ex.S3,ex.S2,ex.S1,ex.S0);
+   		
    		end
 
    		START <= $random;

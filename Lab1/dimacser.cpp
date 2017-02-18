@@ -255,14 +255,12 @@ int main(int argc, char* argv[]) {
     outfile << "c Final state" << endl;
 
     //The final state will be at input to the buffer
-	for (vector<buffer_t>::iterator itr = buffs.begin(); itr != buffs.end(); itr++)
+	for (vector<buffer_t>::reverse_iterator itr = buffs.rbegin(); itr != buffs.rend(); itr++)
 	{
-
 		if (!(end_state & 0x01)){
 			outfile << "-";
 		}
 		end_state = end_state >> 1;
-
 		// For the final unrolling, we want the values of the next state. Therefore, we want the input to the buffer struct
 		outfile << nodes.find(itr->in)->second << " 0" << endl;
 	}

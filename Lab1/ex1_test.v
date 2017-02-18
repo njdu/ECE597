@@ -24,10 +24,10 @@ module test;
 
    always @(posedge CLK) begin
 
-   		count <= count + 1;
+   		
 
-   		if ({ex.S1,ex.S0} == 2'b11) begin
-   			$display("%8d",$time,"  state:",ex.S1,ex.S0, "  (reached target)");
+   		if ({ex.S1,ex.S0} == 2'b01) begin
+   			$display("%8d",count,"  state:",ex.S1,ex.S0, "  (reached target)");
    			$finish;
    		end
    		else begin
@@ -35,6 +35,7 @@ module test;
    		end
 
    		IN <= $random;
+   		count = count + 1;
    end
 
 
